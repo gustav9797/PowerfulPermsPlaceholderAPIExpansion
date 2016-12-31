@@ -1,9 +1,9 @@
 package com.github.cheesesoftware.PowerfulPermsPlaceholderAPIExpansion;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -63,25 +63,21 @@ public class PowerfulPermsPlaceholderAPIExpansion extends PlaceholderExpansion {
     @Override
     public String onPlaceholderRequest(Player player, String identifier) {
         if (identifier.startsWith("player_")) {
-            identifier = identifier.substring("player_".length());
+            identifier = identifier.replaceFirst("player_", "");
             String[] params = identifier.split("_");
             if (params.length == 0)
                 return null;
             String playerName = params[0];
-            if (identifier.length() < playerName.length() + 2)
-                return null;
-            identifier = identifier.substring(playerName.length());
+            identifier = identifier.replaceFirst(playerName + "_", "");
             return parsePlayerPlaceholder(plugin.getPermissionManager().getPermissionPlayer(playerName), identifier);
 
         } else if (identifier.startsWith("group_")) {
-            identifier = identifier.substring("group_".length());
+            identifier = identifier.replaceFirst("group_", "");
             String[] params = identifier.split("_");
             if (params.length == 0)
                 return null;
             String groupName = params[0];
-            if (identifier.length() < groupName.length() + 2)
-                return null;
-            identifier = identifier.substring(groupName.length() + 2);
+            identifier = identifier.replaceFirst(groupName + "_", "");
             return parseGroupPlaceholder(plugin.getPermissionManager().getGroup(groupName), identifier);
         } else {
             if (player == null)
@@ -171,19 +167,24 @@ public class PowerfulPermsPlaceholderAPIExpansion extends PlaceholderExpansion {
             String permission = identifier.replace("permexpirytime_", "");
             List<Permission> perms = permissionPlayer.getAllPermissions();
             for (Permission perm : perms) {
+                Bukkit.getLogger().info("checking " + perm.getPermissionString());
                 if (perm.getPermissionString().equalsIgnoreCase(permission)) {
+                    Bukkit.getLogger().info("found " + perm.getPermissionString() + ", expiry: " + perm.getExpirationDate());
                     return (perm.getExpirationDate() == null ? "Never" : getTimeLeftString(perm.getExpirationDate()));
                 }
             }
+            return "";
         } else if (identifier.startsWith("permexpirydate_")) {
             String permission = identifier.replace("permexpirydate_", "");
             List<Permission> perms = permissionPlayer.getAllPermissions();
             for (Permission perm : perms) {
+
                 if (perm.getPermissionString().equalsIgnoreCase(permission)) {
                     java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     return (perm.getExpirationDate() == null ? "Never" : dateFormat.format(perm.getExpirationDate()));
                 }
             }
+            return "";
         } else if (identifier.startsWith("ownpermexpirytime_")) {
             String permission = identifier.replace("ownpermexpirytime_", "");
             List<Permission> perms = permissionPlayer.getPermissions();
@@ -192,6 +193,7 @@ public class PowerfulPermsPlaceholderAPIExpansion extends PlaceholderExpansion {
                     return (perm.getExpirationDate() == null ? "Never" : getTimeLeftString(perm.getExpirationDate()));
                 }
             }
+            return "";
         } else if (identifier.startsWith("ownpermexpirydate_")) {
             String permission = identifier.replace("ownpermexpirydate_", "");
             List<Permission> perms = permissionPlayer.getPermissions();
@@ -201,6 +203,7 @@ public class PowerfulPermsPlaceholderAPIExpansion extends PlaceholderExpansion {
                     return (perm.getExpirationDate() == null ? "Never" : dateFormat.format(perm.getExpirationDate()));
                 }
             }
+            return "";
         }
         return null;
     }
@@ -242,8 +245,31 @@ public class PowerfulPermsPlaceholderAPIExpansion extends PlaceholderExpansion {
     private static String getTimeLeftString(Date date) {
         if (date == null)
             return null;
-        return (TimeUnit.MILLISECONDS.toDays(date.getTime()) > 0 ? TimeUnit.MILLISECONDS.toDays(date.getTime()) + "d " : "") + (date.getHours() > 0 ? date.getHours() + "h " : "")
-                + (date.getMinutes() > 0 ? date.getMinutes() + "min " : "") + date.getSeconds() + "s ";
+
+        LocalDateTime fromDateTime = LocalDateTime.now();
+        LocalDateTime toDateTime = LocalDateTime.of(date.getYear() + 1900, date.getMonth() + 1, date.getDay() + 1, date.getHours(), date.getMinutes(), date.getSeconds());
+
+        LocalDateTime tempDateTime = LocalDateTime.from(fromDateTime);
+
+        long years = tempDateTime.until(toDateTime, ChronoUnit.YEARS);
+        tempDateTime = tempDateTime.plusYears(years);
+
+        long months = tempDateTime.until(toDateTime, ChronoUnit.MONTHS);
+        tempDateTime = tempDateTime.plusMonths(months);
+
+        long days = tempDateTime.until(toDateTime, ChronoUnit.DAYS);
+        tempDateTime = tempDateTime.plusDays(days);
+
+        long hours = tempDateTime.until(toDateTime, ChronoUnit.HOURS);
+        tempDateTime = tempDateTime.plusHours(hours);
+
+        long minutes = tempDateTime.until(toDateTime, ChronoUnit.MINUTES);
+        tempDateTime = tempDateTime.plusMinutes(minutes);
+
+        long seconds = tempDateTime.until(toDateTime, ChronoUnit.SECONDS);
+
+        return (years > 0 ? years + "y " : "") + (months > 0 ? months + "m " : "") + (days > 0 ? days + "d " : "") + (hours > 0 ? hours + "h " : "") + (minutes > 0 ? minutes + "min " : "") + seconds
+                + "s";
     }
 
 }
