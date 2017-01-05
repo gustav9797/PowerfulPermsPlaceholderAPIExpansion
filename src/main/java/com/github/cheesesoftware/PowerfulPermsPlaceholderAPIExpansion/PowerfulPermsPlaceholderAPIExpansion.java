@@ -1,7 +1,5 @@
 package com.github.cheesesoftware.PowerfulPermsPlaceholderAPIExpansion;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 
@@ -167,9 +165,7 @@ public class PowerfulPermsPlaceholderAPIExpansion extends PlaceholderExpansion {
             String permission = identifier.replace("permexpirytime_", "");
             List<Permission> perms = permissionPlayer.getAllPermissions();
             for (Permission perm : perms) {
-                Bukkit.getLogger().info("checking " + perm.getPermissionString());
                 if (perm.getPermissionString().equalsIgnoreCase(permission)) {
-                    Bukkit.getLogger().info("found " + perm.getPermissionString() + ", expiry: " + perm.getExpirationDate());
                     return (perm.getExpirationDate() == null ? "Never" : getTimeLeftString(perm.getExpirationDate()));
                 }
             }
@@ -229,6 +225,7 @@ public class PowerfulPermsPlaceholderAPIExpansion extends PlaceholderExpansion {
                     return (perm.getExpirationDate() == null ? "Never" : getTimeLeftString(perm.getExpirationDate()));
                 }
             }
+            return "";
         } else if (identifier.startsWith("permexpirydate_")) {
             String permission = identifier.replace("permexpirydate_", "");
             List<Permission> perms = group.getPermissions();
@@ -238,6 +235,7 @@ public class PowerfulPermsPlaceholderAPIExpansion extends PlaceholderExpansion {
                     return (perm.getExpirationDate() == null ? "Never" : dateFormat.format(perm.getExpirationDate()));
                 }
             }
+            return "";
         }
         return null;
     }
@@ -246,30 +244,26 @@ public class PowerfulPermsPlaceholderAPIExpansion extends PlaceholderExpansion {
         if (date == null)
             return null;
 
-        LocalDateTime fromDateTime = LocalDateTime.now();
-        LocalDateTime toDateTime = LocalDateTime.of(date.getYear() + 1900, date.getMonth() + 1, date.getDay() + 1, date.getHours(), date.getMinutes(), date.getSeconds());
+        Date fromDate = new Date();
+        Date toDate = date;
 
-        LocalDateTime tempDateTime = LocalDateTime.from(fromDateTime);
+        long diff = toDate.getTime() - fromDate.getTime();
 
-        long years = tempDateTime.until(toDateTime, ChronoUnit.YEARS);
-        tempDateTime = tempDateTime.plusYears(years);
+        long years = (long) Math.floor(diff / (1000 * 60 * 60 * 24 * 365));
+        diff -= years * 1000 * 60 * 60 * 24 * 365;
 
-        long months = tempDateTime.until(toDateTime, ChronoUnit.MONTHS);
-        tempDateTime = tempDateTime.plusMonths(months);
+        long days = (long) Math.floor(diff / (1000 * 60 * 60 * 24));
+        diff -= days * 1000 * 60 * 60 * 24;
 
-        long days = tempDateTime.until(toDateTime, ChronoUnit.DAYS);
-        tempDateTime = tempDateTime.plusDays(days);
+        long hours = (long) Math.floor(diff / (1000 * 60 * 60));
+        diff -= hours * 1000 * 60 * 60;
 
-        long hours = tempDateTime.until(toDateTime, ChronoUnit.HOURS);
-        tempDateTime = tempDateTime.plusHours(hours);
+        long minutes = (long) Math.floor(diff / (1000 * 60));
+        diff -= minutes * 1000 * 60;
 
-        long minutes = tempDateTime.until(toDateTime, ChronoUnit.MINUTES);
-        tempDateTime = tempDateTime.plusMinutes(minutes);
+        long seconds = (long) Math.floor(diff / 1000);
 
-        long seconds = tempDateTime.until(toDateTime, ChronoUnit.SECONDS);
-
-        return (years > 0 ? years + "y " : "") + (months > 0 ? months + "m " : "") + (days > 0 ? days + "d " : "") + (hours > 0 ? hours + "h " : "") + (minutes > 0 ? minutes + "min " : "") + seconds
-                + "s";
+        return (years > 0 ? years + "y " : "") + (days > 0 ? days + "d " : "") + (hours > 0 ? hours + "h " : "") + (minutes > 0 ? minutes + "min " : "") + seconds + "s";
     }
 
 }
