@@ -1,11 +1,14 @@
 package com.github.cheesesoftware.PowerfulPermsPlaceholderAPIExpansion;
 
 import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import com.github.cheesesoftware.PowerfulPermsAPI.CachedGroup;
 import com.github.cheesesoftware.PowerfulPermsAPI.Group;
 import com.github.cheesesoftware.PowerfulPermsAPI.Permission;
 import com.github.cheesesoftware.PowerfulPermsAPI.PermissionPlayer;
@@ -197,6 +200,38 @@ public class PowerfulPermsPlaceholderAPIExpansion extends PlaceholderExpansion {
                 if (perm.getPermissionString().equalsIgnoreCase(permission)) {
                     java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     return (perm.getExpirationDate() == null ? "Never" : dateFormat.format(perm.getExpirationDate()));
+                }
+            }
+            return "";
+        } else if (identifier.startsWith("groupexpirytime_")) {
+            String groupName = identifier.replace("groupexpirytime_", "");
+            Group group = plugin.getPermissionManager().getGroup(groupName);
+            if (group != null) {
+                LinkedHashMap<String, List<CachedGroup>> cachedGroups = permissionPlayer.getCachedGroups();
+                Iterator<List<CachedGroup>> it = cachedGroups.values().iterator();
+                while (it.hasNext()) {
+                    List<CachedGroup> list = it.next();
+                    for (CachedGroup cachedGroup : list) {
+                        if (cachedGroup.getGroupId() == group.getId())
+                            return (cachedGroup.getExpirationDate() == null ? "Never" : getTimeLeftString(cachedGroup.getExpirationDate()));
+                    }
+                }
+            }
+            return "";
+        } else if (identifier.startsWith("groupexpirydate_")) {
+            String groupName = identifier.replace("groupexpirydate_", "");
+            Group group = plugin.getPermissionManager().getGroup(groupName);
+            if (group != null) {
+                LinkedHashMap<String, List<CachedGroup>> cachedGroups = permissionPlayer.getCachedGroups();
+                Iterator<List<CachedGroup>> it = cachedGroups.values().iterator();
+                while (it.hasNext()) {
+                    List<CachedGroup> list = it.next();
+                    for (CachedGroup cachedGroup : list) {
+                        if (cachedGroup.getGroupId() == group.getId()) {
+                            java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            return (cachedGroup.getExpirationDate() == null ? "Never" : dateFormat.format(cachedGroup.getExpirationDate()));
+                        }
+                    }
                 }
             }
             return "";
