@@ -1,4 +1,4 @@
-package com.github.cheesesoftware.PowerfulPermsPlaceholderAPIExpansion;
+package com.github.gustav9797.PowerfulPermsPlaceholderAPIExpansion;
 
 import java.util.Date;
 import java.util.Iterator;
@@ -8,11 +8,11 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import com.github.cheesesoftware.PowerfulPermsAPI.CachedGroup;
-import com.github.cheesesoftware.PowerfulPermsAPI.Group;
-import com.github.cheesesoftware.PowerfulPermsAPI.Permission;
-import com.github.cheesesoftware.PowerfulPermsAPI.PermissionPlayer;
-import com.github.cheesesoftware.PowerfulPermsAPI.PowerfulPermsPlugin;
+import com.github.gustav9797.PowerfulPermsAPI.CachedGroup;
+import com.github.gustav9797.PowerfulPermsAPI.Group;
+import com.github.gustav9797.PowerfulPermsAPI.Permission;
+import com.github.gustav9797.PowerfulPermsAPI.PermissionPlayer;
+import com.github.gustav9797.PowerfulPermsAPI.PowerfulPermsPlugin;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
